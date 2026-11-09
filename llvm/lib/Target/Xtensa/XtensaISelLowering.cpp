@@ -293,6 +293,16 @@ XtensaTargetLowering::getFPImmAction(const APFloat &Imm, EVT VT,
   return FPImmAction::ConstantPool;
 }
 
+bool XtensaTargetLowering::shouldReduceLoadWidth(
+    SDNode *Load, ISD::LoadExtType ExtTy, EVT NewVT,
+    std::optional<unsigned> ByteOffset) const {
+  // Literal-pool entries are only accessible through the full-width L32R load.
+  if (cast<LoadSDNode>(Load)->getBasePtr().getOpcode() ==
+      XtensaISD::PCREL_WRAPPER)
+    return false;
+  return TargetLowering::shouldReduceLoadWidth(Load, ExtTy, NewVT, ByteOffset);
+}
+
 //===----------------------------------------------------------------------===//
 // Inline asm support
 //===----------------------------------------------------------------------===//

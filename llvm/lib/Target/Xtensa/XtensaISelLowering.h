@@ -54,6 +54,16 @@ public:
   FPImmAction getFPImmAction(const APFloat &Imm, EVT VT,
                              bool ForCodeSize) const override;
 
+  bool shouldReduceLoadWidth(
+      SDNode *Load, ISD::LoadExtType ExtTy, EVT NewVT,
+      std::optional<unsigned> ByteOffset = std::nullopt) const override;
+
+  bool reduceSelectOfFPConstantLoads(EVT CmpOpVT) const override {
+    // An indexed literal-pool load needs an address that L32R cannot
+    // materialize.
+    return false;
+  }
+
   std::pair<unsigned, const TargetRegisterClass *>
   getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
                                StringRef Constraint, MVT VT) const override;
